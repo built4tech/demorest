@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introducir Datos del Paciente</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 70px; /* Espacio para la barra de navegación fija */
+        }
+        .form-container {
+            margin-top: 50px; /* Separación visual del formulario respecto a la barra de navegación */
+            max-width: 600px; /* Ancho máximo del formulario */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .form-inline {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Centrar el contenido horizontalmente */
+        }
+        .form-control {
+            max-width: 20ch; /* Limitar el ancho del campo de entrada a unos 20 caracteres */
+            text-align: center; /* Centrar el texto dentro del campo */
+        }
+        .error-message {
+            color: red;
+            font-weight: bold;
+            text-align: center;
+        }
+        .table-container {
+            margin-top: 30px;
+            overflow-x: auto; /* Permitir desplazamiento horizontal si la tabla es muy ancha */
+        }
+        th, td:not(.description-cell) {
+            white-space: nowrap; /* Evitar que el texto se divida en varias líneas */
+            text-align: center; /* Centrar horizontalmente */
+            vertical-align: middle; /* Centrar verticalmente */
+        }
+        .description-cell {
+            white-space: normal; /* Permitir múltiples líneas */
+            text-align: left; /* Alinear el texto a la izquierda */
+        }  
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="http://localhost:8080/">Historias Clínicas</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="http://localhost:8080/" id="historiasDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Historias Clínicas
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="historiasDropdown">
+                            <li><a class="dropdown-item" href="http://localhost:8080/especialidad?especialidad=cardiologia">Cardiología</a></li>
+                            <li><a class="dropdown-item" href="http://localhost:8080/especialidad?especialidad=dermatologia">Dermatología</a></li>
+                            <li><a class="dropdown-item" href="http://localhost:8080/especialidad?especialidad=neurologia">Neurología</a></li>
+                            <li><a class="dropdown-item" href="http://localhost:8080/especialidad?especialidad=pediatria">Pediatría</a></li>
+                            <li><a class="dropdown-item" href="http://localhost:8080/especialidad?especialidad=psiquiatria">Psiquiatría</a></li>
+                            <li><a class="dropdown-item" href="http://localhost:8080/especialidad?especialidad=traumatologia">Traumatología</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://localhost:8080/introducir_datos">Introducir Datos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://localhost:8080/about">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container form-container">
+        <h1 class="text-center">Introducir Datos del Paciente</h1>
+        <form id="dniForm" class="form-inline">
+            <label for="dni" class="form-label">DNI del Paciente</label>
+            <input type="text" class="form-control" id="dni" placeholder="Introduce el DNI" maxlength="20" required>
+            <button type="submit" class="btn btn-primary w-100 mt-3">Buscar Historias</button>
+        </form>
+    </div>
+
+    <!-- Tabla de resultados -->
+    <div class="container table-container">
+        <div id="result"></div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- JavaScript -->
+    <script>
+        document.getElementById("dniForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const dni = document.getElementById("dni").value.trim();
+            const resultContainer = document.getElementById("result");
+
+            // Limpiar resultados previos
+            resultContainer.innerHTML = "";
+
+            if (!dni) {
+                resultContainer.innerHTML = `<p class="error-message">Por favor, introduce un DNI válido.</p>`;
+                return;
+            }
+
+            // Realizar la llamada AJAX
+            const endpoint = `http://localhost:8080/hcd/paciente/${dni}`;
+            const xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (xhttp.readyState === 4) {
+                    if (xhttp.status === 200) {
+                        const data = JSON.parse(xhttp.responseText);
+                        if (data.length === 0) {
+                            resultContainer.innerHTML = `<p class="error-message">No se ha encontrado ninguna historia relativa a este paciente.</p>`;
+                        } else {
+                            // Construir la tabla
+                            const table = document.createElement("table");
+                            table.className = "table table-striped table-bordered";
+                            table.innerHTML = `
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Apellidos</th>
+                                        <th>Especialidad</th>
+                                        <th>Fecha Apertura</th>
+                                        <th>Fecha Cierre</th>
+                                        <th>Descripción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.map(item => `
+                                        <tr>
+                                            <td>${item.nombre}</td>
+                                            <td>${item.apellidos}</td>
+                                            <td>${item.especialidad}</td>
+                                            <td>${item.fecha_apertura}</td>
+                                            <td>${item.fecha_cierre}</td>
+                                            <td class="description-cell">${item.descripcion}</td>
+                                        </tr>
+                                    `).join("")}
+                                </tbody>
+                            `;
+                            resultContainer.appendChild(table);
+                        }
+                    } else {
+                        resultContainer.innerHTML = `<p class="error-message">Error al buscar las historias: ${xhttp.status}</p>`;
+                    }
+                }
+            };
+            xhttp.open("GET", endpoint, true);
+            xhttp.send();
+        });
+    </script>
+</body>
+</html>
