@@ -43,20 +43,25 @@ El objetivo de esta aplicación es proporcionar una API REST sencilla para consu
 
 ## Puesta en Marcha
 
-1. **Construir la imagen Docker**:
+1. **Clonar el repositorio**:
+   ```sh
+   git clone https://github.com/built4tech/demorest.git
+   ```
+
+2. **Construir la imagen Docker**:
    ```sh
    docker build -t api-pacientes .
    ```
 
-2. **Ejecutar el contenedor Docker**:
+3. **Ejecutar el contenedor Docker**:
    ```sh
    docker run -p 8080:8080 api-pacientes
    ```
 
-3. **Acceso a la API**:
+4. **Acceso a la API**:
    Accede a los endpoints de la API en `http://localhost:8080` usando tu navegador, `curl` o Postman.
 
-4. **Interfaz Web**:
+5. **Interfaz Web**:
    Puedes acceder a las páginas HTML (`index.html`, `about.html`, `especialidad.html`, `introducir_datos.html` ) desde el navegador para visualizar la información de la aplicación.
 
 ## Dependencias
