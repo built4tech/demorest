@@ -63,6 +63,12 @@ El objetivo de esta aplicación es proporcionar una API REST sencilla para consu
 
 5. **Interfaz Web**:
    Puedes acceder a las páginas HTML (`index.html`, `about.html`, `especialidad.html`, `introducir_datos.html` ) desde el navegador para visualizar la información de la aplicación.
+   
+## Flujo de trabajo en ramas
+
+- Toda nueva funcionalidad o fix debe hacerse en una rama creada a partir de `staging`.
+- Los Pull Requests deben ir de tu rama hacia `staging` (no hacia `main`).
+- Cuando `staging` esté listo para producción, se hará un PR de `staging` a `main` y será revisado por el owner.
 
 ## Dependencias
 
